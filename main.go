@@ -24,7 +24,7 @@ func NewSlidingWindow(capacity, duration int64) *SlidingWindow {
 	}
 }
 
-func (sw *SlidingWindow) Handle(packet interface{}) bool {
+func (sw *SlidingWindow) Allow() bool {
 
 	now := time.Now().Unix()
 	count := now - sw.currentTime
@@ -41,10 +41,11 @@ func (sw *SlidingWindow) Handle(packet interface{}) bool {
 		count = 0
 	}
 	count *= sw.prevCount
-	count /= sw.timeUnit
-	count += sw.currCount
+	c := float32(count)
+	c /= float32(sw.timeUnit)
+	c += float32(sw.currCount)
 
-	if count > sw.capacity {
+	if c > float32(sw.capacity) {
 		fmt.Println("Dropped")
 		return false
 	}
@@ -55,8 +56,7 @@ func (sw *SlidingWindow) Handle(packet interface{}) bool {
 }
 
 func main() {
-	sw := algorithms.New(2, 3)
-	//sw := NewSlidingWindow(2, 1)
+	//sw := NewSlidingWindow(2, 3)
 	//time.Sleep(2 * time.Second)
 	/*i := 0
 	for {
@@ -69,10 +69,15 @@ func main() {
 			println(i)
 		}
 	}*/
-	for i := 0; i < 100; i++ {
-		time.Sleep(1 * time.Second)
-		if sw.Allow() {
-			println(i)
-		}
+	//time.Sleep(2 * time.Second)
+	//for i := 0; i < 100; i++ {
+	//	time.Sleep(100 * time.Millisecond)
+	//	sw.Allow()
+	//}
+	sw := algorithms.New(3, 5)
+	for i := 1; i < 100; i++ {
+		sw.Allow()
+		time.Sleep(time.Second)
 	}
+	//println(math.RoundToEven(6.5))
 }
